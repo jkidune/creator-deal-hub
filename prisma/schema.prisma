@@ -1,0 +1,159 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String        @id @default(cuid())
+  authId       String        @unique
+  email        String        @unique
+  name         String?
+  createdAt    DateTime      @default(now())
+  deals        Deal[]
+  partnerships Partnership[]
+  alerts       Alert[]
+  projects     Project[]
+}
+
+model Deal {
+  id              String      @id @default(cuid())
+  userId          String
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name            String
+  source          String?
+  detail          String?
+  amount          String?
+  amountSub       String?
+  status          DealStatus  @default(PENDING)
+  section         DealSection @default(INBOUND)
+  conceptApproved Boolean     @default(false)
+  depositPaid     Boolean     @default(false)
+  contentCreated  Boolean     @default(false)
+  posted          Boolean     @default(false)
+  finalPaid       Boolean     @default(false)
+  postDate        String?
+  invoiceNotes    String?
+  requirements    String?
+  action          String?
+  notes           String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+enum DealStatus {
+  FILMING
+  POST_NOW
+  SIGNED
+  PENDING
+  NEGOTIATING
+  BRIEF
+  PREPROD
+  WAITING
+  NO_RESPONSE
+  STALLED
+  PASSED
+}
+
+enum DealSection {
+  ACTIVE
+  HOT
+  INBOUND
+  CLOSED
+}
+
+model Partnership {
+  id            String           @id @default(cuid())
+  userId        String
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  brandName     String
+  dealValue     String?
+  type          String?
+  notes         String?
+  deadlines     Deadline[]
+  speakingSlots SpeakingSlot[]
+  products      PartnerProduct[]
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+}
+
+model Deadline {
+  id            String      @id @default(cuid())
+  partnershipId String
+  partnership   Partnership @relation(fields: [partnershipId], references: [id], onDelete: Cascade)
+  dueDate       DateTime
+  task          String
+  done          Boolean     @default(false)
+  createdAt     DateTime    @default(now())
+}
+
+model SpeakingSlot {
+  id            String      @id @default(cuid())
+  partnershipId String
+  partnership   Partnership @relation(fields: [partnershipId], references: [id], onDelete: Cascade)
+  brand         String
+  eventDate     DateTime
+  timeSlot      String?
+  fee           String?
+  depositPaid   Boolean     @default(false)
+  finalPaid     Boolean     @default(false)
+  notes         String?
+  createdAt     DateTime    @default(now())
+}
+
+model PartnerProduct {
+  id            String        @id @default(cuid())
+  partnershipId String
+  partnership   Partnership   @relation(fields: [partnershipId], references: [id], onDelete: Cascade)
+  name          String
+  status        ProductStatus @default(IN_PROGRESS)
+  createdAt     DateTime      @default(now())
+}
+
+enum ProductStatus {
+  IN_PROGRESS
+  ITERATING
+  DEVELOPMENT
+  DONE
+}
+
+model Alert {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      AlertType @default(INFO)
+  title     String
+  body      String?
+  resolved  Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+enum AlertType {
+  DANGER
+  WARNING
+  GOOD
+  INFO
+}
+
+model Project {
+  id          String        @id @default(cuid())
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  items       ProjectItem[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model ProjectItem {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  text      String
+  done      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
