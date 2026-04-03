@@ -1,5 +1,5 @@
 'use client'
-import { useState, useTransition } from 'react'
+import { useState, useTransition, Fragment } from 'react'
 import { createDeal, updateDeal, deleteDeal } from '@/app/actions/deals'
 import { Plus, Download, ChevronDown, ChevronRight, Check, X, Trash2 } from 'lucide-react'
 
@@ -350,9 +350,8 @@ export default function DealsClient({ initialDeals }: { initialDeals: Deal[] }) 
                         const edits = editMap[deal.id] || {}
                         const current = { ...deal, ...edits }
                         return (
-                          <>
+                          <Fragment key={deal.id}>
                             <tr
-                              key={deal.id}
                               className={`cursor-pointer ${isExpanded ? 'bg-[#16161a]' : 'bg-[#111113] hover:bg-[#16161a]'} transition-colors`}
                               onClick={() => setExpanded(isExpanded ? null : deal.id)}
                             >
@@ -523,7 +522,7 @@ export default function DealsClient({ initialDeals }: { initialDeals: Deal[] }) 
                                 </td>
                               </tr>
                             )}
-                          </>
+                          </Fragment>
                         )
                       })}
                     </tbody>
