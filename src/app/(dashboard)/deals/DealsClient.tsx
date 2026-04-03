@@ -139,26 +139,8 @@ export default function DealsClient({ initialDeals }: { initialDeals: Deal[] }) 
   function handleCreate(e: React.FormEvent) {
     e.preventDefault()
     startTransition(async () => {
-      await createDeal(newDeal)
-      setDeals(prev => [...prev, {
-        ...newDeal,
-        id: Date.now().toString(),
-        userId: '',
-        amountSub: null,
-        detail: null,
-        conceptApproved: false,
-        depositPaid: false,
-        contentCreated: false,
-        posted: false,
-        finalPaid: false,
-        postDate: null,
-        invoiceNotes: null,
-        requirements: null,
-        action: null,
-        notes: null,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      } as Deal])
+      const created = await createDeal(newDeal)
+      setDeals(prev => [...prev, created])
       setNewDeal({ name: '', amount: '', source: '', section: 'INBOUND', status: 'PENDING' })
       setShowNew(false)
     })

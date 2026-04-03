@@ -111,19 +111,12 @@ export default function PartnershipsClient({ initialPartnerships }: { initialPar
   function handleCreatePartner(e: React.FormEvent) {
     e.preventDefault()
     startTransition(async () => {
-      await createPartnership(newPartner)
+      const created = await createPartnership(newPartner)
       setPartnerships(prev => [...prev, {
-        ...newPartner,
-        id: Date.now().toString(),
-        userId: '',
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        ...created,
         deadlines: [],
         speakingSlots: [],
         products: [],
-        dealValue: newPartner.dealValue || null,
-        type: newPartner.type || null,
-        notes: newPartner.notes || null,
       }])
       setNewPartner({ brandName: '', dealValue: '', type: '', notes: '' })
       setShowNew(false)
@@ -134,17 +127,10 @@ export default function PartnershipsClient({ initialPartnerships }: { initialPar
     const form = dlForms[partnershipId]
     if (!form?.task || !form?.dueDate) return
     startTransition(async () => {
-      await addDeadline(partnershipId, form.dueDate, form.task)
+      const newDeadline = await addDeadline(partnershipId, form.dueDate, form.task)
       setPartnerships(prev => prev.map(p => p.id === partnershipId ? {
         ...p,
-        deadlines: [...p.deadlines, {
-          id: Date.now().toString(),
-          partnershipId,
-          task: form.task,
-          dueDate: new Date(form.dueDate),
-          done: false,
-          createdAt: new Date()
-        }]
+        deadlines: [...p.deadlines, newDeadline]
       } : p))
       setDlForms(f => ({ ...f, [partnershipId]: { task: '', dueDate: '' } }))
       setShowDLForm(null)
@@ -165,21 +151,10 @@ export default function PartnershipsClient({ initialPartnerships }: { initialPar
     const form = slotForms[partnershipId]
     if (!form?.brand || !form?.eventDate) return
     startTransition(async () => {
-      await addSpeakingSlot(partnershipId, form)
+      const newSlot = await addSpeakingSlot(partnershipId, form)
       setPartnerships(prev => prev.map(p => p.id === partnershipId ? {
         ...p,
-        speakingSlots: [...p.speakingSlots, {
-          id: Date.now().toString(),
-          partnershipId,
-          brand: form.brand,
-          eventDate: new Date(form.eventDate),
-          timeSlot: form.timeSlot || null,
-          fee: form.fee || null,
-          notes: form.notes || null,
-          depositPaid: false,
-          finalPaid: false,
-          createdAt: new Date()
-        }]
+        speakingSlots: [...p.speakingSlots, newSlot]
       } : p))
       setSlotForms(f => ({ ...f, [partnershipId]: { brand: '', eventDate: '', timeSlot: '', fee: '', notes: '' } }))
       setShowSlotForm(null)
@@ -190,16 +165,10 @@ export default function PartnershipsClient({ initialPartnerships }: { initialPar
     const name = (productForms[partnershipId] || '').trim()
     if (!name) return
     startTransition(async () => {
-      await addProduct(partnershipId, name)
+      const newProduct = await addProduct(partnershipId, name)
       setPartnerships(prev => prev.map(p => p.id === partnershipId ? {
         ...p,
-        products: [...p.products, {
-          id: Date.now().toString(),
-          partnershipId,
-          name,
-          status: 'IN_PROGRESS' as ProductStatus,
-          createdAt: new Date()
-        }]
+        products: [...p.products, newProduct]
       } : p))
       setProductForms(f => ({ ...f, [partnershipId]: '' }))
       setShowProductForm(null)

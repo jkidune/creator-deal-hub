@@ -38,8 +38,9 @@ export async function createDeal(data: {
   action?: string
 }) {
   const user = await getUser()
-  await prisma.deal.create({ data: { ...data, userId: user.id } })
+  const deal = await prisma.deal.create({ data: { ...data, userId: user.id } })
   revalidatePath('/deals')
+  return deal
 }
 
 export async function updateDeal(id: string, data: Partial<{

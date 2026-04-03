@@ -25,16 +25,18 @@ export async function createPartnership(data: {
   notes?: string
 }) {
   const user = await getUser()
-  await prisma.partnership.create({ data: { ...data, userId: user.id } })
+  const p = await prisma.partnership.create({ data: { ...data, userId: user.id } })
   revalidatePath('/partnerships')
+  return p
 }
 
 export async function addDeadline(partnershipId: string, dueDate: string, task: string) {
   const user = await getUser()
   const partnership = await prisma.partnership.findFirst({ where: { id: partnershipId, userId: user.id } })
   if (!partnership) throw new Error('Not found')
-  await prisma.deadline.create({ data: { partnershipId, dueDate: new Date(dueDate), task } })
+  const deadline = await prisma.deadline.create({ data: { partnershipId, dueDate: new Date(dueDate), task } })
   revalidatePath('/partnerships')
+  return deadline
 }
 
 export async function toggleDeadline(id: string) {
@@ -57,7 +59,7 @@ export async function addSpeakingSlot(partnershipId: string, data: {
   const user = await getUser()
   const partnership = await prisma.partnership.findFirst({ where: { id: partnershipId, userId: user.id } })
   if (!partnership) throw new Error('Not found')
-  await prisma.speakingSlot.create({
+  const slot = await prisma.speakingSlot.create({
     data: {
       partnershipId,
       brand: data.brand,
@@ -68,14 +70,16 @@ export async function addSpeakingSlot(partnershipId: string, data: {
     }
   })
   revalidatePath('/partnerships')
+  return slot
 }
 
 export async function addProduct(partnershipId: string, name: string, status: ProductStatus = 'IN_PROGRESS') {
   const user = await getUser()
   const partnership = await prisma.partnership.findFirst({ where: { id: partnershipId, userId: user.id } })
   if (!partnership) throw new Error('Not found')
-  await prisma.partnerProduct.create({ data: { partnershipId, name, status } })
+  const product = await prisma.partnerProduct.create({ data: { partnershipId, name, status } })
   revalidatePath('/partnerships')
+  return product
 }
 
 export async function updateProductStatus(id: string, status: ProductStatus) {
